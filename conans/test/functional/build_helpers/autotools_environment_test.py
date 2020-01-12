@@ -50,7 +50,7 @@ class AutoToolsConfigureTest(unittest.TestCase):
         conanfile.deps_cpp_info.exelinkflags.append("exe_link_flag")
         conanfile.deps_cpp_info.sysroot = "/path/to/folder"
 
-    @unittest.skipUnless(platform.system() == "Linux", "Requires make")
+    @unittest.skipUnless(platform.system() in ["Linux","Darwin"], "Requires make")
     def autotools_real_install_dirs_test(self):
         body = r"""#include "hello.h"
 #include <iostream>
