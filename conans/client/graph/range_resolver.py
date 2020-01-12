@@ -139,22 +139,26 @@ class RangeResolver(object):
                                  "could not be resolved in %s"
                                  % (version_range, require, base_conanref, origin))
 
+    @staticmethod
+    def _filter_by_user_and_channel(search_list, search_ref):
+        filtered = [ref for ref in search_list
+                    if (ref.user == search_ref.user or search_ref.user is None) and
+                    (ref.channel == search_ref.channel or search_ref.channel is None)]
+        return filtered
+
     def _resolve_local(self, search_ref, version_range):
         local_found = search_recipes(self._cache, search_ref)
-        local_found = [ref for ref in local_found
-                       if ref.user == search_ref.user and
-                       ref.channel == search_ref.channel]
+        local_found = self._filter_by_user_and_channel(local_found, search_ref)
         if local_found:
             return self._resolve_version(version_range, local_found)
+        return None, None
 
     def _search_remotes(self, search_ref, remotes):
         for remote in remotes.values():
             if not remotes.selected or remote == remotes.selected:
                 search_result = self._remote_manager.search_recipes(remote, search_ref.name,
                                                                     ignorecase=False)
-                search_result = [ref for ref in search_result
-                                 if ref.user == search_ref.user and
-                                 ref.channel == search_ref.channel]
+                search_result = self._filter_by_user_and_channel(search_result, search_ref)
                 if search_result:
                     return search_result, remote.name
         return None, None
